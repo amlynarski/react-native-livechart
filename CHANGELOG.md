@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.22.1] - 2026-09-18
+
 ### Fixed
 
 - Custom-manager chart fonts are reused across renders with unchanged font
