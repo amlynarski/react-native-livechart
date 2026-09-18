@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.22.0] - 2026-09-18
+
 ### Added
 
 - Time-varying thresholds and Form-B reference lines now support
