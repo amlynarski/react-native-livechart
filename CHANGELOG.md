@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `LiveChart.live` accepts a `SharedValue<boolean>` that suspends continuous
+  frame work without disabling pan, zoom, scrub, or draggable reference lines.
+
+### Fixed
+
+- Idle charts settle sub-pixel engine motion, park invisible pulse frames,
+  finish candle-width interpolation, and reuse text measurements instead of
+  continuously invalidating Skia at the display refresh rate. Resolves
+  [#304](https://github.com/brandtnewlabs/react-native-livechart/issues/304).
+
 ## [4.22.2] - 2026-09-21
 
 ### Fixed

@@ -14,12 +14,26 @@ describe("live renderer profile matrix", () => {
   it("merges each run with the canonical defaults", () => {
     for (const profile of LIVE_RENDERER_PROFILES) {
       expect(profile.chartHeight).toBeGreaterThan(0);
+      expect(profile.chartWidth).toBeGreaterThan(0);
       expect(profile.historySpanSeconds).toBeGreaterThan(0);
       expect(profile.lineWidth).toBeGreaterThan(0);
       expect(profile.maxPoints).toBeGreaterThan(0);
       expect(profile.timeWindowSeconds).toBeGreaterThan(0);
       expect(profile.tradesPerSecond).toBeGreaterThan(0);
     }
+  });
+
+  it("records the idle publication baseline and optimized ranges", () => {
+    const idleProfiles = LIVE_RENDERER_PROFILES.filter((profile) =>
+      profile.id.startsWith("idle-publish-"),
+    );
+    expect(idleProfiles).toHaveLength(3);
+    expect(idleProfiles.map((profile) => profile.baselinePublishedFps)).toEqual([
+      120, 120, 120,
+    ]);
+    expect(idleProfiles.map((profile) => profile.optimizedPublishedFps)).toEqual([
+      11, 0, 0,
+    ]);
   });
 
   it("selects a named run and falls back for an unknown id", () => {
