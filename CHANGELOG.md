@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.22.2] - 2026-09-21
+
 ### Fixed
 
 - Static line charts no longer draw replacement data for one frame against the
