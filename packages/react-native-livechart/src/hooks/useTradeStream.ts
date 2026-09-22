@@ -29,7 +29,7 @@ export function useTradeStream(
   /** Static charts run no loops: register without starting. Default `true`. */
   autostart = true,
   /** Runtime gate shared with the chart engine. */
-  live?: SharedValue<boolean>,
+  isFrameLoopActive?: SharedValue<boolean>,
 ): SharedValue<TradeMarker[]> {
   const markers = useSharedValue<TradeMarker[]>([]);
   const state = useSharedValue<TradeStreamState>(createTradeStreamState());
@@ -39,7 +39,7 @@ export function useTradeStream(
       frameInfo,
     ) => {
       "worklet";
-      if (live?.get() === false) return;
+      if (isFrameLoopActive?.get() === false) return;
       if (!active) {
         if (markers.get().length > 0) markers.set([]);
         return;

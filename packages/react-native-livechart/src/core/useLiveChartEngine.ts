@@ -95,7 +95,7 @@ export interface EngineConfig {
    */
   static?: boolean;
   /** Runtime gate for the frame loop. Gestures and configuration stay mounted. */
-  live?: SharedValue<boolean>;
+  isFrameLoopActive?: SharedValue<boolean>;
   /** Optional development-only frame publication counters. */
   debugFrameStats?: SharedValue<LiveChartFrameStats>;
   /**
@@ -440,7 +440,7 @@ export function useLiveChartEngine(
     allowFutureViewEnd,
     returnToLiveMs,
     static: isStatic,
-    live,
+    isFrameLoopActive,
     debugFrameStats,
     snapKey,
     mode,
@@ -700,7 +700,7 @@ export function useLiveChartEngine(
   // loop is fully inert in static mode (the invariant that makes this worth it).
   const engineFrameCallback = useFrameCallback((frameInfo) => {
     "worklet";
-    if (live?.get() === false) return;
+    if (isFrameLoopActive?.get() === false) return;
     const beforeValue = debugFrameStats ? displayValue.get() : 0;
     const beforeMin = debugFrameStats ? displayMin.get() : 0;
     const beforeMax = debugFrameStats ? displayMax.get() : 0;

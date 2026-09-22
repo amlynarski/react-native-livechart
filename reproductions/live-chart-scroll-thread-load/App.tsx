@@ -75,9 +75,9 @@ function FrameRateReadout({
 }
 
 function ReproChart({
-  isChartLive,
+  isChartFrameLoopActive,
 }: {
-  isChartLive: SharedValue<boolean>;
+  isChartFrameLoopActive: SharedValue<boolean>;
 }) {
   const now = Date.now() / 1000;
   const data = useSharedValue<LiveChartPoint[]>(
@@ -140,7 +140,7 @@ function ReproChart({
           timeScroll
           zoom
           referenceLines={referenceLines}
-          live={isChartLive}
+          isFrameLoopActive={isChartFrameLoopActive}
           debugFrameStats={frameStats}
           theme="dark"
         />
@@ -151,10 +151,10 @@ function ReproChart({
 
 export default function App() {
   const [gateDuringScroll, setGateDuringScroll] = useState(false);
-  const isChartLive = useSharedValue(true);
+  const isChartFrameLoopActive = useSharedValue(true);
 
   const setScrolling = (isScrolling: boolean) => {
-    if (gateDuringScroll) isChartLive.set(!isScrolling);
+    if (gateDuringScroll) isChartFrameLoopActive.set(!isScrolling);
   };
 
   return (
@@ -173,7 +173,9 @@ export default function App() {
         }}
         renderItem={({ item }) => {
           if (item.kind === "chart") {
-            return <ReproChart isChartLive={isChartLive} />;
+            return (
+              <ReproChart isChartFrameLoopActive={isChartFrameLoopActive} />
+            );
           }
           if (item.kind === "sticky") {
             return (
@@ -183,7 +185,7 @@ export default function App() {
                   style={styles.button}
                   onPress={() => {
                     setGateDuringScroll((current) => {
-                      if (current) isChartLive.set(true);
+                      if (current) isChartFrameLoopActive.set(true);
                       return !current;
                     });
                   }}

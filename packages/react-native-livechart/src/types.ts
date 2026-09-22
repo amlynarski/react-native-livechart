@@ -2682,7 +2682,7 @@ export interface LiveChartProps extends LiveChartCoreProps {
    *
    * @experimental
    */
-  live?: SharedValue<boolean>;
+  isFrameLoopActive?: SharedValue<boolean>;
   /**
    * Optional development counter for engine frames that did or did not publish
    * visible state. Supplying it adds one SharedValue write per engine frame.

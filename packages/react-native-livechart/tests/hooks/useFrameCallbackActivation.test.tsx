@@ -81,7 +81,7 @@ describe("dynamic useFrameCallback activation", () => {
     const { result } = await renderHook(() => {
       const data = useSharedValue([{ time: 1_700_000_000, value: 50 }]);
       const value = useSharedValue(50);
-      const live = useSharedValue(false);
+      const isFrameLoopActive = useSharedValue(false);
       const debugFrameStats = useSharedValue({
         frames: 0,
         published: 0,
@@ -92,10 +92,10 @@ describe("dynamic useFrameCallback activation", () => {
         value,
         timeWindow: 30,
         smoothing: 0.08,
-        live,
+        isFrameLoopActive,
         debugFrameStats,
       });
-      return { engine, live, debugFrameStats };
+      return { engine, isFrameLoopActive, debugFrameStats };
     });
 
     const handle = mockFrameHandles.at(-1)!;
@@ -103,7 +103,7 @@ describe("dynamic useFrameCallback activation", () => {
     handle.callback(frame);
     expect(result.current.debugFrameStats.value.frames).toBe(0);
 
-    result.current.live.value = true;
+    result.current.isFrameLoopActive.value = true;
     handle.callback(frame);
     expect(result.current.debugFrameStats.value.frames).toBe(1);
     expect(handle.isActive).toBe(true);

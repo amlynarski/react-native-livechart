@@ -46,7 +46,7 @@ export function useDegen(
   momentumSV: SharedValue<Momentum>,
   cfg: ResolvedDegenConfig | null,
   onShake?: (payload: DegenShakePayload) => void,
-  live?: SharedValue<boolean>,
+  isFrameLoopActive?: SharedValue<boolean>,
 ): {
   pack: SharedValue<Float64Array<ArrayBuffer>>;
   packRevision: SharedValue<number>;
@@ -187,7 +187,7 @@ export function useDegen(
   useFrameCallback(
     /* istanbul ignore next -- worklet runs on UI thread, not in Jest */ () => {
       "worklet";
-      if (live?.get() === false) return;
+      if (isFrameLoopActive?.get() === false) return;
       const now = engine.timestamp.get();
       const buf = pack.get();
       const slots = slotCountSV.get();

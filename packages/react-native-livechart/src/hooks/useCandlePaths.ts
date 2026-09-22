@@ -39,7 +39,7 @@ export function useCandleWidthLerp(
   /** Only advance the displayed width while candle mode is active. */
   active: boolean,
   /** Runtime gate shared with the chart engine. */
-  live?: SharedValue<boolean>,
+  isFrameLoopActive?: SharedValue<boolean>,
 ): SharedValue<number> {
   const targetCandleWidth = useDerivedValue(() => candleWidthSecs);
   const displayCandleWidth = useSharedValue(candleWidthSecs);
@@ -53,7 +53,7 @@ export function useCandleWidthLerp(
 
   const widthFrameCallback = useFrameCallback((frameInfo) => {
     "worklet";
-    if (!active || live?.get() === false) return;
+    if (!active || isFrameLoopActive?.get() === false) return;
     const dt = frameInfo.timeSincePreviousFrame ?? MS_PER_FRAME_60FPS;
     const target = targetCandleWidth.get();
     const next = lerp(

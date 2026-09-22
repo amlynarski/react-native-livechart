@@ -58,7 +58,7 @@ export function DotOverlay({
   color,
   viewEnd,
   pulseWhileParked = false,
-  live,
+  isFrameLoopActive,
 }: {
   dotX: SharedValue<number>;
   dotY: SharedValue<number>;
@@ -85,7 +85,7 @@ export function DotOverlay({
    */
   pulseWhileParked?: boolean;
   /** Runtime gate shared with the chart engine. */
-  live?: SharedValue<boolean>;
+  isFrameLoopActive?: SharedValue<boolean>;
 }) {
   const dotColor = color ?? palette.line;
 
@@ -96,7 +96,7 @@ export function DotOverlay({
   const pulseClockMs = useSharedValue(0);
   /* istanbul ignore next -- frame-callback worklet runs on the UI thread, not in Jest */
   const pulseClock = useFrameCallback((frame) => {
-    if (!pulse || live?.get() === false) return;
+    if (!pulse || isFrameLoopActive?.get() === false) return;
     pulseClockMs.value = quantizePulseClock(
       frame.timestamp,
       pulse.interval,

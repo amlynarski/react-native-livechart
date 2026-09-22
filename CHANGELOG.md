@@ -9,8 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `LiveChart.live` accepts a `SharedValue<boolean>` that suspends continuous
-  frame work without disabling pan, zoom, scrub, or draggable reference lines.
+- `LiveChart.isFrameLoopActive` accepts a `SharedValue<boolean>` that suspends
+  continuous frame work without disabling pan, zoom, scrub, or draggable
+  reference lines.
 
 ### Fixed
 
