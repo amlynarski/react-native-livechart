@@ -15,4 +15,10 @@ describe("quantizePulseClock", () => {
     expect(quantizePulseClock(900, 1000, 500, 19)).toBe(500);
     expect(quantizePulseClock(1000, 1000, 500, 19)).toBe(1000);
   });
+
+  it("parks at the cycle start when the pulse cannot travel", () => {
+    expect(quantizePulseClock(250, 1000, 500, 9)).toBe(0);
+    expect(quantizePulseClock(250, 1000, 0, 19)).toBe(0);
+    expect(quantizePulseClock(250, 1000, NaN, 19)).toBe(0);
+  });
 });

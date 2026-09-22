@@ -35,6 +35,7 @@ jest.mock("react-native-reanimated", () => {
           ref.current = handle;
           mockFrameHandles.push(handle);
         }
+        ref.current.callback = callback;
         return ref.current;
       },
     ),
@@ -94,6 +95,7 @@ describe("dynamic useFrameCallback activation", () => {
         smoothing: 0.08,
         isFrameLoopActive,
         debugFrameStats,
+        nowOverride: 1000,
       });
       return { engine, isFrameLoopActive, debugFrameStats };
     });
@@ -106,6 +108,12 @@ describe("dynamic useFrameCallback activation", () => {
     result.current.isFrameLoopActive.value = true;
     handle.callback(frame);
     expect(result.current.debugFrameStats.value.frames).toBe(1);
+    handle.callback(frame);
+    expect(result.current.debugFrameStats.value).toMatchObject({
+      frames: 2,
+      skipped: 2,
+      published: 0,
+    });
     expect(handle.isActive).toBe(true);
   });
 
@@ -122,6 +130,43 @@ describe("dynamic useFrameCallback activation", () => {
     expect(handle.isActive).toBe(true);
     await rerender({ enabled: false });
     expect(handle.isActive).toBe(false);
+  });
+
+  it("gates candle-width interpolation without stopping its handle", async () => {
+    const { result, rerender } = await renderHook(
+      ({
+        candleWidth,
+        isActive,
+      }: {
+        candleWidth: number;
+        isActive: boolean;
+      }) => {
+        const isFrameLoopActive = useSharedValue(false);
+        const displayCandleWidth = useCandleWidthLerp(
+          candleWidth,
+          0.5,
+          true,
+          isActive,
+          isFrameLoopActive,
+        );
+        return { displayCandleWidth, isFrameLoopActive };
+      },
+      { initialProps: { candleWidth: 60, isActive: false } },
+    );
+
+    const handle = mockFrameHandles.at(-1)!;
+    await rerender({ candleWidth: 120, isActive: false });
+    handle.callback({ timestamp: 1000, timeSincePreviousFrame: 16.67 });
+    expect(result.current.displayCandleWidth.value).toBe(60);
+
+    await rerender({ candleWidth: 120, isActive: true });
+    handle.callback({ timestamp: 1016.67, timeSincePreviousFrame: 16.67 });
+    expect(result.current.displayCandleWidth.value).toBe(60);
+
+    result.current.isFrameLoopActive.value = true;
+    handle.callback({ timestamp: 1033.34, timeSincePreviousFrame: 16.67 });
+    expect(result.current.displayCandleWidth.value).toBe(60);
+    expect(handle.isActive).toBe(true);
   });
 
   it("starts and stops marker projection", async () => {
