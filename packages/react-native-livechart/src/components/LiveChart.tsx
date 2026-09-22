@@ -2405,6 +2405,7 @@ function ChartYAxisLayer({
       <YAxisOverlay
         variant={variant}
         float={variant === "labels" && yAxisFloat}
+        side={yAxisCfg?.side}
         entries={entries}
         engine={engine}
         padding={effectivePadding}
@@ -2500,7 +2501,7 @@ function ChartFillLayer({
       {yAxisCfg && (
         <ChartYAxisLayer
           model={model}
-          variant={yAxisFloat ? "grid" : "all"}
+          variant={yAxisFloat || yAxisCfg.side === "left" ? "grid" : "all"}
           entries={yAxisEntries!}
         />
       )}
@@ -2991,7 +2992,9 @@ function ChartMainPlotLayer({
         </Group>
       </Group>
       {isCandle ? <ChartCandleLayer model={model} /> : null}
-      {yAxisCfg && yAxisFloat ? (
+      {/* Left-gutter labels must draw after the left-edge fade, which erases
+          the gutter in the fill pass. The grid stays behind the price line. */}
+      {yAxisCfg && (yAxisFloat || yAxisCfg.side === "left") ? (
         <ChartYAxisLayer
           model={model}
           variant="labels"
