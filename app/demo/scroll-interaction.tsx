@@ -17,7 +17,7 @@ import {
 } from "react-native-livechart";
 import { useSharedValue } from "react-native-reanimated";
 
-import { ControlRow, ToggleChip } from "../../demo-lib/ChipRow";
+import { ChipRow, ControlRow, ToggleChip } from "../../demo-lib/ChipRow";
 import {
   APP_FONT_FAMILY,
   APP_FONT_FAMILY_MEDIUM,
@@ -28,6 +28,11 @@ import { APP_THEME, colors } from "../../demo-lib/theme";
 import { useSimulatedChartData } from "../../sim/useSimulatedChartData";
 
 type ActiveChart = "single" | "series" | "none";
+const WINDOW_OPTIONS = [
+  { value: 30, label: "30s" },
+  { value: 60, label: "60s" },
+  { value: 86_400, label: "1d" },
+] as const;
 
 export default function ScrollInteractionScreen() {
   const insets = useSafeAreaInsets();
@@ -35,6 +40,7 @@ export default function ScrollInteractionScreen() {
   const [gateOnScroll, setGateOnScroll] = useState(false);
   const [feedPaused, setFeedPaused] = useState(false);
   const [showFrameStats, setShowFrameStats] = useState(false);
+  const [timeWindow, setTimeWindow] = useState<number>(30);
   const [scrolling, setScrolling] = useState(false);
   const [frameRates, setFrameRates] = useState({ published: 0, skipped: 0 });
   const isFrameLoopActive = useSharedValue(true);
@@ -142,6 +148,12 @@ export default function ScrollInteractionScreen() {
             onChange={setShowFrameStats}
           />
         </ControlRow>
+        <ChipRow
+          label="LiveChart window"
+          options={WINDOW_OPTIONS}
+          value={timeWindow}
+          onChange={setTimeWindow}
+        />
       </View>
 
       <ScrollView
@@ -183,7 +195,7 @@ export default function ScrollInteractionScreen() {
             value={value}
             accentColor={ACCENT}
             theme={APP_THEME}
-            timeWindow={30}
+            timeWindow={timeWindow}
             scrub
             isFrameLoopActive={isFrameLoopActive}
             debugFrameStats={showFrameStats ? debugFrameStats : undefined}
