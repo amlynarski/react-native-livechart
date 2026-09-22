@@ -2,7 +2,7 @@
   "name": "live-chart-scroll-thread-load-repro",
   "version": "1.0.0",
   "private": true,
-  "main": "expo/AppEntry.js",
+  "main": "index.js",
   "scripts": {
     "ios": "expo run:ios",
     "typecheck": "tsc --noEmit"
