@@ -1,5 +1,5 @@
-import { FlashList } from "@shopify/flash-list";
-import { useEffect, useMemo, useState } from "react";
+import { FlashList, type ListRenderItemInfo } from "@shopify/flash-list";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
@@ -79,10 +79,10 @@ function ReproChart({
 }: {
   isChartFrameLoopActive: SharedValue<boolean>;
 }) {
-  const now = Date.now() / 1000;
+  const [initialNow] = useState(() => Date.now() / 1000);
   const data = useSharedValue<LiveChartPoint[]>(
     Array.from({ length: 60 }, (_, index) => ({
-      time: now - 59 + index,
+      time: initialNow - 59 + index,
       value: INITIAL_VALUE + Math.sin(index / 6),
     })),
   );
@@ -153,14 +153,49 @@ export default function App() {
   const [gateDuringScroll, setGateDuringScroll] = useState(false);
   const isChartFrameLoopActive = useSharedValue(true);
 
+  useEffect(() => {
+    if (!gateDuringScroll) isChartFrameLoopActive.set(true);
+  }, [gateDuringScroll, isChartFrameLoopActive]);
+
   const setScrolling = (isScrolling: boolean) => {
     if (gateDuringScroll) isChartFrameLoopActive.set(!isScrolling);
   };
+
+  const toggleGate = useCallback(() => {
+    setGateDuringScroll((current) => !current);
+  }, []);
+
+  const renderItem = useCallback(
+    ({ item }: ListRenderItemInfo<Row>) => {
+      if (item.kind === "chart") {
+        return <ReproChart isChartFrameLoopActive={isChartFrameLoopActive} />;
+      }
+      if (item.kind === "sticky") {
+        return (
+          <View style={styles.sticky}>
+            <Text style={styles.stickyText}>Sticky market header</Text>
+            <Pressable style={styles.button} onPress={toggleGate}>
+              <Text style={styles.buttonText}>
+                Scroll gate: {gateDuringScroll ? "on" : "off"}
+              </Text>
+            </Pressable>
+          </View>
+        );
+      }
+      return (
+        <View style={styles.row}>
+          <Text style={styles.rowText}>Market activity row {item.index + 1}</Text>
+        </View>
+      );
+    },
+    [gateDuringScroll, isChartFrameLoopActive, toggleGate],
+  );
 
   return (
     <GestureHandlerRootView style={styles.screen}>
       <FlashList
         data={ROWS}
+        getItemType={(row) => row.kind}
         keyExtractor={(row) => row.id}
         stickyHeaderIndices={[1]}
         onScrollBeginDrag={() => setScrolling(true)}
@@ -171,38 +206,7 @@ export default function App() {
             setScrolling(false);
           }
         }}
-        renderItem={({ item }) => {
-          if (item.kind === "chart") {
-            return (
-              <ReproChart isChartFrameLoopActive={isChartFrameLoopActive} />
-            );
-          }
-          if (item.kind === "sticky") {
-            return (
-              <View style={styles.sticky}>
-                <Text style={styles.stickyText}>Sticky market header</Text>
-                <Pressable
-                  style={styles.button}
-                  onPress={() => {
-                    setGateDuringScroll((current) => {
-                      if (current) isChartFrameLoopActive.set(true);
-                      return !current;
-                    });
-                  }}
-                >
-                  <Text style={styles.buttonText}>
-                    Scroll gate: {gateDuringScroll ? "on" : "off"}
-                  </Text>
-                </Pressable>
-              </View>
-            );
-          }
-          return (
-            <View style={styles.row}>
-              <Text style={styles.rowText}>Market activity row {item.index + 1}</Text>
-            </View>
-          );
-        }}
+        renderItem={renderItem}
       />
     </GestureHandlerRootView>
   );

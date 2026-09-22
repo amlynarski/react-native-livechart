@@ -3,6 +3,28 @@ import {
   LIVE_RENDERER_PROFILES,
   resolveLiveRendererProfile,
 } from "./liveRendererProfile";
+import { advanceTimestampByPixel } from "../packages/react-native-livechart/src/core/liveChartEngineTick";
+
+const IDLE_SAMPLE_FPS = 120;
+const IDLE_SAMPLE_SECONDS = 60;
+
+function estimateIdleTimestampPublicationsPerSecond(
+  windowSeconds: number,
+  width: number,
+) {
+  let timestamp = 1000;
+  let publications = 0;
+  for (let frame = 1; frame <= IDLE_SAMPLE_FPS * IDLE_SAMPLE_SECONDS; frame++) {
+    const next = advanceTimestampByPixel(
+      timestamp,
+      1000 + frame / IDLE_SAMPLE_FPS,
+      windowSeconds / width,
+    );
+    if (next !== timestamp) publications++;
+    timestamp = next;
+  }
+  return Math.round(publications / IDLE_SAMPLE_SECONDS);
+}
 
 describe("live renderer profile matrix", () => {
   it("has unique ids and a resolvable default", () => {
@@ -23,17 +45,22 @@ describe("live renderer profile matrix", () => {
     }
   });
 
-  it("records the idle publication baseline and optimized ranges", () => {
+  it("matches idle publication estimates to the pixel-aware timestamp gate", () => {
     const idleProfiles = LIVE_RENDERER_PROFILES.filter((profile) =>
       profile.id.startsWith("idle-publish-"),
     );
     expect(idleProfiles).toHaveLength(3);
-    expect(idleProfiles.map((profile) => profile.baselinePublishedFps)).toEqual([
-      120, 120, 120,
-    ]);
-    expect(idleProfiles.map((profile) => profile.optimizedPublishedFps)).toEqual([
-      11, 0, 0,
-    ]);
+    expect(idleProfiles.map((profile) => profile.baselinePublishedFps)).toEqual(
+      [120, 120, 120],
+    );
+    for (const profile of idleProfiles) {
+      expect(profile.optimizedPublishedFps).toBe(
+        estimateIdleTimestampPublicationsPerSecond(
+          profile.timeWindowSeconds,
+          profile.chartWidth,
+        ),
+      );
+    }
   });
 
   it("selects a named run and falls back for an unknown id", () => {

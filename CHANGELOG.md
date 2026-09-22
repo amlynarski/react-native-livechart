@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   continuous frame work without disabling pan, zoom, scrub, or draggable
   reference lines.
 - `LiveChart.debugFrameStats` exposes optional development counters for active
-  engine frames and visible engine-state publications.
+  engine frames and tracked engine-state updates.
 - `yAxis.side: "left" | "right"` for single- and multi-series charts. Left labels
   use the caller-reserved `insets.left` gutter and remain visible above edge fades.
 

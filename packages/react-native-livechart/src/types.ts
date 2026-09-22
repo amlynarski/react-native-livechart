@@ -16,13 +16,13 @@ export interface LiveChartPoint {
   value: number;
 }
 
-/** Development counters for continuous engine-frame publication. */
+/** Development counters for continuous engine-frame state updates. */
 export interface LiveChartFrameStats {
   /** Frame callbacks that ran while the chart was live. */
   frames: number;
-  /** Frames that changed at least one visible engine value. */
+  /** Frames that changed at least one tracked engine value. */
   published: number;
-  /** Frames whose visible engine values were already settled. */
+  /** Frames whose tracked engine values were unchanged. */
   skipped: number;
 }
 
@@ -2687,8 +2687,9 @@ export interface LiveChartProps extends LiveChartCoreProps {
    */
   isFrameLoopActive?: SharedValue<boolean>;
   /**
-   * Optional development counter for engine frames that did or did not publish
-   * visible state. Supplying it adds one SharedValue write per engine frame.
+   * Optional development counter for engine frames that did or did not change
+   * tracked engine values. It is not a count of Skia redraws. Supplying it adds
+   * one SharedValue write per active engine frame.
    *
    * @experimental
    */
